@@ -8,11 +8,16 @@ import android.widget.Toast
 
 class Hangman: ConstraintLayout {
 
-    var strike:Int = 0
-    var answer:String = ""
-    lateinit var guess: CharArray
+    private var GAME_OVER_LOSE = "GAME_OVER_LOSE"
+    private var GAME_NOT_FINISHED = "GAME_NOT_FINISHED"
+    private var GAME_OVER_WIN = "GAME_OVER_WIN"
+    private var GAME_NOT_STARTED = "GAME_NOT_STARTED"
 
-    var lines: MutableList<View> = ArrayList()
+    private var strike:Int = 0
+    private var answer:String = ""
+    private lateinit var guess: CharArray
+    private var lines: MutableList<View> = ArrayList()
+    private var gameStatus = GAME_NOT_STARTED
 
     constructor(context: Context, attributeSet: AttributeSet) : super(context,attributeSet) {
 
@@ -34,43 +39,63 @@ class Hangman: ConstraintLayout {
     {
         this.answer = answer
         this.guess = CharArray(answer.length){'_'}
+        this.gameStatus = GAME_NOT_FINISHED
 
         lines.forEach{
             it.visibility = View.INVISIBLE
         }
     }
 
-    fun checkAnswer(char: Char)
+    fun check(char:Char)
     {
-        var correct = false
-        answer.forEachIndexed { index, c -> if(c.equals(char)) {guess[index] = c; correct = true} }
-
-        if(answer == guess.joinToString{""}) {
-            Toast.makeText(context, "CORRECT", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        if(correct == false)
+        if(checkGuess(char) == false)
         {
-            lines[strike].visibility = View.VISIBLE
-            strike++;
+            addStrike()
 
-            if(strike == 10)
-            {
+            if(strike == 10) {
+                gameStatus = GAME_OVER_LOSE
                 Toast.makeText(context, "GAME OVER", Toast.LENGTH_SHORT).show()
-                return
             }
-
-            Toast.makeText(context, "WRONG", Toast.LENGTH_SHORT).show()
         }
         else
         {
-            Toast.makeText(context, guess.joinToString {""}, Toast.LENGTH_SHORT).show()
+            fillGuess(char)
+
+            if(answer == guess.toString()) {
+                gameStatus = GAME_OVER_WIN
+                Toast.makeText(context, "YOU WIN THE GAME", Toast.LENGTH_SHORT).show()
+            }
+
         }
     }
 
+    fun getGameStatus():String
+    {
+        return gameStatus
+    }
 
+    fun getCurrentAnswer():String
+    {
+        return guess.toString()
+    }
 
+    private fun checkGuess(char: Char):Boolean{
 
+        if(answer.contains(char,true))
+            return true;
+
+        return false;
+    }
+
+    private fun addStrike()
+    {
+        lines[strike].visibility = View.VISIBLE
+        strike++;
+    }
+
+    private fun fillGuess(char:Char)
+    {
+        answer.forEachIndexed { index, c -> if(c.equals(char)) guess[index] = c }
+    }
 
 }
