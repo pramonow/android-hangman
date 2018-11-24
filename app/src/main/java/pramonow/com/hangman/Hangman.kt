@@ -12,6 +12,7 @@ class Hangman: ConstraintLayout {
     private var GAME_NOT_FINISHED = "GAME_NOT_FINISHED"
     private var GAME_OVER_WIN = "GAME_OVER_WIN"
     private var GAME_NOT_STARTED = "GAME_NOT_STARTED"
+    private var MAX_ANSWER = 10
 
     private var strike:Int = 0
     private var answer:String = ""
@@ -48,11 +49,17 @@ class Hangman: ConstraintLayout {
 
     fun check(char:Char)
     {
+        if(strike == MAX_ANSWER)
+        {
+            Toast.makeText(context, "GAME OVER", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         if(checkGuess(char) == false)
         {
             addStrike()
 
-            if(strike == 10) {
+            if(strike == MAX_ANSWER) {
                 gameStatus = GAME_OVER_LOSE
                 Toast.makeText(context, "GAME OVER", Toast.LENGTH_SHORT).show()
             }
@@ -61,12 +68,14 @@ class Hangman: ConstraintLayout {
         {
             fillGuess(char)
 
-            if(answer == guess.toString()) {
+            if(answer == guess.joinToString("")) {
                 gameStatus = GAME_OVER_WIN
                 Toast.makeText(context, "YOU WIN THE GAME", Toast.LENGTH_SHORT).show()
             }
 
         }
+
+        Toast.makeText(context,guess.joinToString(""), Toast.LENGTH_SHORT).show()
     }
 
     fun getGameStatus():String
@@ -95,7 +104,8 @@ class Hangman: ConstraintLayout {
 
     private fun fillGuess(char:Char)
     {
-        answer.forEachIndexed { index, c -> if(c.equals(char)) guess[index] = c }
+        answer.forEachIndexed { index, c ->
+            if(c.equals(char)) guess[index] = c }
     }
 
 }
