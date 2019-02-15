@@ -1,4 +1,4 @@
 # android-hangman
 Simple hangman with fancies capability
 
-Readme to be added
+Just a simple hangman component
