@@ -14,6 +14,7 @@ class Hangman: ConstraintLayout {
     private val GAME_OVER_WIN = "GAME_OVER_WIN"
     private val GAME_NOT_STARTED = "GAME_NOT_STARTED"
 
+    //message
     private val GAME_OVER_MESSAGE = "GAME_OVER"
     private val GAME_WIN_MESSAGE = "CONGRATULATIONS"
 
@@ -32,6 +33,7 @@ class Hangman: ConstraintLayout {
 
         View.inflate(context, R.layout.hangman,this)
 
+        //adding each line one by one
         this.lines.add(findViewById(R.id.first_line))
         this.lines.add(findViewById(R.id.second_line))
         this.lines.add(findViewById(R.id.third_line))
@@ -45,8 +47,7 @@ class Hangman: ConstraintLayout {
     }
 
     //initialise or start a new game
-    fun initializeGame(answer:String)
-    {
+    fun initializeGame(answer:String) {
         this.answer = answer
         this.guess = CharArray(answer.length){'_'}
         this.gameStatus = GAME_NOT_FINISHED
@@ -57,10 +58,9 @@ class Hangman: ConstraintLayout {
     }
 
     //Main logic for checking answer
-    fun check(char:Char)
-    {
-        //If game is over (either number of wrong answer more than 10 or correct answer)
-        if(strike == MAX_ANSWER || answer == guess.joinToString("")) {
+    fun check(char:Char) {
+        //If game is over (either number of wrong answer more than 10 or correct answer or answer already guessed)
+        if(gameStatus == GAME_OVER_WIN || gameStatus == GAME_OVER_LOSE) {
             Toast.makeText(context, GAME_OVER_MESSAGE, Toast.LENGTH_SHORT).show()
             return
         }
@@ -69,36 +69,38 @@ class Hangman: ConstraintLayout {
         if(checkGuess(char) == false) {
             addStrike()
 
+            //If game is over
             if(strike == MAX_ANSWER) {
                 gameStatus = GAME_OVER_LOSE
                 Toast.makeText(context, GAME_OVER_MESSAGE, Toast.LENGTH_SHORT).show()
             }
         }
-        else
-        {
+        else {
             fillGuess(char)
 
+            //if answer is all correct
             if(answer == guess.joinToString("")) {
                 gameStatus = GAME_OVER_WIN
                 Toast.makeText(context, GAME_WIN_MESSAGE, Toast.LENGTH_SHORT).show()
             }
-
         }
 
-        Toast.makeText(context,guess.joinToString(""), Toast.LENGTH_SHORT).show()
+        //if haven't finished then toast out current answer
+        if(gameStatus == GAME_NOT_FINISHED) {
+            Toast.makeText(context,guess.joinToString(""), Toast.LENGTH_SHORT).show()
+        }
     }
 
-    fun getGameStatus():String
-    {
+    fun getGameStatus():String {
         return gameStatus
     }
 
-    fun getCurrentAnswer():String
-    {
-        return guess.toString()
+    fun getCurrentAnswer():String {
+        return guess.joinToString("")
     }
 
-    private fun checkGuess(char: Char):Boolean{
+    //check if corresponding character is correct
+    private fun checkGuess(char: Char):Boolean {
 
         if(answer.contains(char,true))
             return true;
@@ -106,14 +108,14 @@ class Hangman: ConstraintLayout {
         return false;
     }
 
-    private fun addStrike()
-    {
+    //when wrong answer then add line in the hangman
+    private fun addStrike() {
         lines[strike].visibility = View.VISIBLE
         strike++;
     }
 
-    private fun fillGuess(char:Char)
-    {
+    //fill the answer with the char
+    private fun fillGuess(char:Char) {
         answer.forEachIndexed { index, c ->
             if(c.equals(char)) guess[index] = c }
     }
